@@ -1,14 +1,9 @@
-#include "timers.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
+#include "timers.h"
 
 Configuration config;
 
-/**
- * Configures Timer/Counter 0
- * @param mode mode of operation
- */
 void TC0_init(char mode)
 {
     TCCR0A = 0;
@@ -24,10 +19,10 @@ void TC0_init(char mode)
         TCCR0B |= 1 << WGM02;
         config.mode_TC0 = FAST_PWM_MODE;
         break;
-    case PHASE_CORRECT_PWM_MODE:
+    case PHASE_CORRECT_PWM:
         TCCR0A |= (1 << COM0B1) | (1 << WGM00);
         TCCR0B |= 1 << WGM02;
-        config.mode_TC0 = PHASE_CORRECT_PWM_MODE;
+        config.mode_TC0 = PHASE_CORRECT_PWM;
         break;
     default:
         config.mode_TC0 = NORMAL_MODE;
@@ -35,12 +30,6 @@ void TC0_init(char mode)
     }
 }
 
-/**
- * Sets Timer/Counter 0 signal frequency
- * @param frequency signal frequency in Hz.
- * In CTC mode and Phase Correct Mode minimum frequency is 30.5176 Hz.
- * In Fast PWM Mode minimum frequency is 61.0352 Hz.
- */
 void TC0_set_frequency(float frequency)
 {
     float n = F_CPU / (256 * frequency);
@@ -82,7 +71,7 @@ void TC0_set_frequency(float frequency)
     case FAST_PWM_MODE:
         OCR0A = (unsigned char)(F_CPU / (n * frequency) - 1);
         break;
-    case PHASE_CORRECT_PWM_MODE:
+    case PHASE_CORRECT_PWM:
         OCR0A = (unsigned char)(F_CPU / (2 * n * frequency));
         break;
     default:
@@ -91,10 +80,6 @@ void TC0_set_frequency(float frequency)
     TCNT0 = 0;
 }
 
-/**
- * Sets Timer/Counter 0 pulse width
- * @param width pulse width in seconds
- */
 void TC0_set_pulse_width(float width)
 {
     float n;
@@ -124,7 +109,7 @@ void TC0_set_pulse_width(float width)
     case FAST_PWM_MODE:
         OCR0B = (unsigned char)(F_CPU * width / n + 1);
         break;
-    case PHASE_CORRECT_PWM_MODE:
+    case PHASE_CORRECT_PWM:
         OCR0B = (unsigned char)(F_CPU * width / (2 * n) + 1);
         break;
     default:
@@ -133,10 +118,6 @@ void TC0_set_pulse_width(float width)
     TCNT0 = 0;
 }
 
-/**
- * Configures Timer/Counter 1
- * @param mode mode of operation
- */
 void TC1_init(char mode)
 {
     TCCR1A = 0;
@@ -153,15 +134,15 @@ void TC1_init(char mode)
         TCCR1B |= (1 << WGM13) | (1 << WGM12);
         config.mode_TC1 = FAST_PWM_MODE;
         break;
-    case PHASE_CORRECT_PWM_MODE:
+    case PHASE_CORRECT_PWM:
         TCCR1A |= (1 << COM1A1) | (1 << WGM11);
         TCCR1B |= 1 << WGM13;
-        config.mode_TC1 = PHASE_CORRECT_PWM_MODE;
+        config.mode_TC1 = PHASE_CORRECT_PWM;
         break;
-    case PHASE_AND_FREQUENCY_CORRECT_PWM:
+    case FREQUENCY_CORRECT_PWM:
         TCCR1A |= 1 << COM1A1;
         TCCR1B |= 1 << WGM13;
-        config.mode_TC1 = PHASE_AND_FREQUENCY_CORRECT_PWM;
+        config.mode_TC1 = FREQUENCY_CORRECT_PWM;
         break;
     default:
         config.mode_TC1 = NORMAL_MODE;
@@ -169,12 +150,6 @@ void TC1_init(char mode)
     }
 }
 
-/**
- * Sets Timer/Counter 1 signal frequency
- * @param frequency signal frequency in Hz.
- * In CTC mode and Phase Correct Mode minimum frequency is 0.1192 Hz.
- * In Fast PWM Mode minimum frequency is 0.2384 Hz.
- */
 void TC1_set_frequency(float frequency)
 {
     float n = F_CPU / (65536.0 * frequency);
@@ -216,10 +191,10 @@ void TC1_set_frequency(float frequency)
     case FAST_PWM_MODE:
         ICR1 = (unsigned int)(F_CPU / (n * frequency) - 1);
         break;
-    case PHASE_CORRECT_PWM_MODE:
+    case PHASE_CORRECT_PWM:
         ICR1 = (unsigned int)(F_CPU / (2 * n * frequency));
         break;
-    case PHASE_AND_FREQUENCY_CORRECT_PWM:
+    case FREQUENCY_CORRECT_PWM:
         ICR1 = (unsigned int)(F_CPU / (2 * n * frequency));
         break;
     default:
@@ -228,10 +203,6 @@ void TC1_set_frequency(float frequency)
     TCNT1 = 1;
 }
 
-/**
- * Sets Timer/Counter 1 pulse width
- * @param width pulse width in seconds
- */
 void TC1_set_pulse_width(float width)
 {
     TCCR1B &= 0xF8;
@@ -267,10 +238,10 @@ void TC1_set_pulse_width(float width)
     case FAST_PWM_MODE:
         OCR1A = (unsigned int)(F_CPU * width / n);
         break;
-    case PHASE_CORRECT_PWM_MODE:
+    case PHASE_CORRECT_PWM:
         OCR1A = (unsigned int)(F_CPU * width / (2 * n));
         break;
-    case PHASE_AND_FREQUENCY_CORRECT_PWM:
+    case FREQUENCY_CORRECT_PWM:
         OCR1A = (unsigned int)(F_CPU * width / (2 * n));
         break;
     default:
@@ -279,10 +250,6 @@ void TC1_set_pulse_width(float width)
     TCNT1 = 0;
 }
 
-/**
- * Configures Timer/Counter 2
- * @param mode mode of operation
- */
 void TC2_init(char mode)
 {
     TCCR2A = 0;
@@ -298,10 +265,10 @@ void TC2_init(char mode)
         TCCR2B |= 1 << WGM22;
         config.mode_TC2 = FAST_PWM_MODE;
         break;
-    case PHASE_CORRECT_PWM_MODE:
+    case PHASE_CORRECT_PWM:
         TCCR2A |= (1 << COM2B1) | (1 << WGM20);
         TCCR2B |= 1 << WGM22;
-        config.mode_TC2 = PHASE_CORRECT_PWM_MODE;
+        config.mode_TC2 = PHASE_CORRECT_PWM;
         break;
     default:
         config.mode_TC2 = NORMAL_MODE;
@@ -309,12 +276,6 @@ void TC2_init(char mode)
     }
 }
 
-/**
- * Sets Timer/Counter 2 signal frequency
- * @param frequency signal frequency in Hz.
- * In CTC mode and Phase Correct Mode minimum frequency is 30.5176 Hz.
- * In Fast PWM Mode minimum frequency is 61.0352 Hz.
- */
 void TC2_set_frequency(float frequency)
 {
     float n = F_CPU / (256 * frequency);
@@ -368,7 +329,7 @@ void TC2_set_frequency(float frequency)
     case FAST_PWM_MODE:
         OCR2A = (unsigned char)(F_CPU / (n * frequency) - 1);
         break;
-    case PHASE_CORRECT_PWM_MODE:
+    case PHASE_CORRECT_PWM:
         OCR2A = (unsigned char)(F_CPU / (2 * n * frequency));
         break;
     default:
@@ -377,10 +338,6 @@ void TC2_set_frequency(float frequency)
     TCNT2 = 0;
 }
 
-/**
- * Sets Timer/Counter 2 pulse width
- * @param width pulse width in seconds
- */
 void TC2_set_pulse_width(float width)
 {
     float n;
@@ -416,7 +373,7 @@ void TC2_set_pulse_width(float width)
     case FAST_PWM_MODE:
         OCR2B = (unsigned char)(F_CPU * width / n + 1);
         break;
-    case PHASE_CORRECT_PWM_MODE:
+    case PHASE_CORRECT_PWM:
         OCR2B = (unsigned char)(F_CPU * width / (2 * n) + 1);
         break;
     default:
@@ -430,11 +387,7 @@ ISR(TIMER0_COMPA_vect)
     microseconds++;
 }
 
-/**
- * Start Timer/Counter 0 in normal mode.
- * Increases the value of the variable 'microseconds' every microsecond
- */
-void start_micros(void)
+void count_micros(void)
 {
     microseconds = 0;
     TCCR0B |= 1 << CS00;
@@ -450,11 +403,7 @@ ISR(TIMER0_COMPB_vect)
     milliseconds++;
 }
 
-/**
- * Start Timer/Counter 0 in normal mode.
- * Increases the value of the variable 'milliseconds' every millisecond
- */
-void start_millis(void)
+void count_millis(void)
 {
     milliseconds = 0;
     TCCR0B |= (1 << CS01) | (1 << CS00);
