@@ -1,10 +1,5 @@
 #include "iostring.h"
 
-/**
- * Converts a 16 bit signed integer to string of characters
- * @param a integer to convert
- * @return a string that contains the decimal representation of the integer
- */
 const char *int2string(int a)
 {
     static char s[7];
@@ -30,11 +25,6 @@ const char *int2string(int a)
     return s;
 }
 
-/**
- * Converts a 16 bit unsigned integer to string of characters
- * @param a integer to convert
- * @return a string that contains the decimal representation of the integer
- */
 const char *uint2string(unsigned int a)
 {
     static char s[6];
@@ -55,11 +45,6 @@ const char *uint2string(unsigned int a)
     return s;
 }
 
-/**
- * Converts a unsigned char to string of characters
- * @param a byte to convert
- * @return a string that contains the hexadecimal representation of the byte
- */
 const char *byte2hstring(unsigned char a)
 {
     static char s[5];
@@ -71,12 +56,6 @@ const char *byte2hstring(unsigned char a)
     return s;
 }
 
-/**
- * Converts a float to string character
- * @param a float to convert
- * @param n number of digits after point
- * @return a string that contains the decimal representation the float
- */
 const char *float2string(float a, unsigned char n)
 {
     static char s[12];

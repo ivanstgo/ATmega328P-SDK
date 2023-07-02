@@ -3,12 +3,6 @@
 #include <math.h>
 #include "i2c.h"
 
-/**
- * Sets interface to be 4 bits long and configures LCD options.
- * @param function_set specify the number of display lines and character font.
- * @param display_control specify the display, cursor and blinking enable.
- * @param entry_mode specify the entry mode.
- */
 void lcd_init(unsigned char function_set, unsigned char display_control, unsigned char entry_mode)
 {
     i2c_init();
@@ -33,10 +27,6 @@ void lcd_init(unsigned char function_set, unsigned char display_control, unsigne
     lcd_command(entry_mode);
 }
 
-/**
- * Sends a command to LCD
- * @param cmd command to execute
-*/
 void lcd_command(unsigned char cmd)
 {
     i2c_start();
@@ -52,10 +42,6 @@ void lcd_command(unsigned char cmd)
         _delay_us(40);
 }
 
-/**
- * Displays a character in the display
- * @param data the character to display
-*/
 void lcd_data(unsigned char data)
 {
     i2c_start();
@@ -68,10 +54,6 @@ void lcd_data(unsigned char data)
     _delay_ms(1);   
 }
 
-/**
- * Displays a character string in the display
- * @param string character string to show
- */
 void lcd_print_string(const char *string)
 {
     int i = 0;
@@ -82,11 +64,6 @@ void lcd_print_string(const char *string)
     }
 }
 
-/**
- * Stores a custom character in the CGRAM
- * @param n custom character code in DDRAM. Range [0x00-0x07]
- * @param pattern the data of pattern (5x8 dots)
-*/
 void lcd_generate_character(unsigned char n, const char *pattern)
 {
     lcd_command(SET_CGRAM_ADDRESS(n << 3));
@@ -97,11 +74,6 @@ void lcd_generate_character(unsigned char n, const char *pattern)
     lcd_command(SET_DDRAM_ADDRESS(0x00));
 }
 
-/**
- * Set the cursor position
- * @param r row
- * @param c column
-*/
 void lcd_set_position(unsigned char r, unsigned char c)
 {
     lcd_command(SET_DDRAM_ADDRESS(r > 0 ? 0x40 + c : c));

@@ -2,9 +2,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-/**
- * Inits ADC
-*/
 void adc_init(void)
 {
     ADMUX |= 1 << REFS0;
@@ -12,10 +9,6 @@ void adc_init(void)
 
 }
 
-/**
- * Start an ADC conversion
- * @param pin analog pin to perform the conversion
-*/
 unsigned int adc_start(unsigned char pin)
 {
     ADMUX &= 0b11111000;
@@ -31,10 +24,6 @@ ISR(ADC_vect){
     adc_value = ADC;
 }
 
-/**
- * Start conversion auto-triggered by the ADC interrupt
- * @param pin analog pin to perform the conversion
-*/
 void adc_free_running_mode(unsigned char pin)
 {
     ADMUX &= 0b11111000;

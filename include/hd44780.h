@@ -1,9 +1,14 @@
-#ifndef HD_44780_H
-#define HD_44780_H
+/**
+ * @file hd44780.h
+ * @author Iván Santiago
+ * @date 07-01-2023 17:55
+ * @brief Library to use a LCD display HD44780 using I2C
+*/
+#ifndef _HD44780_H_
+#define _HD44780_H_
 /**
  * PCF8574 address
 */
-
 #define PCF8574_ADDRESS 0x27
 /**
  * I2C frame format
@@ -67,11 +72,38 @@
  * and 0x40 to 0x67 for the second line.
 */
 #define SET_DDRAM_ADDRESS(A) (0x80 | ((A) & 0x7F))
-
+/**
+ * Sets interface to be 4 bits long and configures LCD options.
+ * @param function_set specify the number of display lines and character font.
+ * @param display_control specify the display, cursor and blinking enable.
+ * @param entry_mode specify the entry mode.
+ */
 void lcd_init(unsigned char function_set, unsigned char display_control, unsigned char entry_mode);
+/**
+ * Sends a command to LCD
+ * @param cmd command to execute
+*/
 void lcd_command(unsigned char cmd);
+/**
+ * Displays a character in the display
+ * @param data the character to display
+*/
 void lcd_data(unsigned char data);
+/**
+ * Displays a character string in the display
+ * @param string character string to show
+ */
 void lcd_print_string(const char *string);
+/**
+ * Stores a custom character in the CGRAM
+ * @param n custom character code in DDRAM. Range [0x00-0x07]
+ * @param pattern the data of pattern (5x8 dots)
+*/
 void lcd_generate_character(unsigned char n, const char *pattern);
+/**
+ * Set the cursor position
+ * @param r row
+ * @param c column
+*/
 void lcd_set_position(unsigned char r, unsigned char c);
 #endif

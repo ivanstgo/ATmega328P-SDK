@@ -1,7 +1,12 @@
-#ifndef SSD1306_H
+/**
+ * @file ssd1306.h
+ * @author Iván Santiago
+ * @date 07-01-2023 18:08
+ * @brief Library for using a 128 x 64 dots OLED display SSD1306
+*/
+#ifndef _SSD1306_H_
+#define _SSD1306_H_
 #include "graphics.h"
-
-#define SSD1306_H
 /**
  * SSD1306 i2c address
  */
@@ -114,11 +119,35 @@
 */
 #define SET_PAGE_ADDRESS 0x22
 
+/**
+ * Inits the SSD1306 controller and turns on the screen
+*/
 void ssd1306_init(void);
+/**
+ * Sends a command byte to the SSD1306
+ * @param cmd command to be written
+*/
 void ssd1306_command(char cmd);
+/**
+ * Sends a data byte to the SSD1306
+ * @param data byte to be written
+*/
 void ssd1306_data(char data);
+/**
+ * Updates the SSD1306 display RAM
+ * @param g a graphics buffer
+*/
 void ssd1306_update_graphics(Graphics *g);
+/**
+ * Indicates to the controller that several data will be written
+*/
 void ssd1306_start_data_frame(void);
+/**
+ * Indicates to the controller that several command will be written
+*/
 void ssd1306_start_command_frame(void);
+/**
+ * Ends a data frame or command frame
+*/
 void ssd1306_stop_frame(void);
 #endif

@@ -6,12 +6,6 @@ float rotationx_matrix[4][4] = {0};
 float rotationy_matrix[4][4] = {0};
 float rotationz_matrix[4][4] = {0};
 
-/**
- * Configures the perspective matrix
- * @param angle angle of vision
- * @param z_far far z
- * @param z_near near z
- */
 void set_perspective_matrix(float angle, float z_far, float z_near)
 {
     float a = 64.0f / 128.0f;
@@ -24,12 +18,6 @@ void set_perspective_matrix(float angle, float z_far, float z_near)
     perspective_matrix[3][3] = 0.0f;
 }
 
-/**
- * Sets the angle of rotation around x, y and z axis
- * @param alpha rotation around x
- * @param beta rotation around y
- * @param gamma rotation around z
- */
 void set_rotation_matrix(float alpha, float beta, float gamma)
 {
     rotationx_matrix[0][0] = 1.0f;
@@ -54,12 +42,6 @@ void set_rotation_matrix(float alpha, float beta, float gamma)
     rotationz_matrix[3][3] = 1.0f;
 }
 
-/**
- * Computes the cross product between two vectors and normalize it
- * @param a first vector
- * @param b second vector
- * @param c output vector
- */
 void cross_product(Point3 *a, Point3 *b, Point3 *output)
 {
     output->x = a->y * b->z - a->z * b->y;
@@ -67,10 +49,6 @@ void cross_product(Point3 *a, Point3 *b, Point3 *output)
     output->z = a->x * b->y - a->y * b->x;
 }
 
-/**
- * Normalize a vector
- * @param a vector to normalize
- */
 void normalize_vector3d(Point3 *a)
 {
     float r = sqrtf(dot_product(a, a));
@@ -82,22 +60,11 @@ void normalize_vector3d(Point3 *a)
     }
 }
 
-/**
- * Computes the dot product between two vectors
- * @param a first vector
- * @param b second vector
- * @return the scalar product of a and b
- */
 float dot_product(Point3 *a, Point3 *b)
 {
     return a->x * b->x + a->y * b->y + a->z * b->z;
 }
 
-/**
- * @param input input vector
- * @param output transformed vector
- * @param matrix 4x4 transformation matrix
- */
 void transform_vector3d(Point3 *input, Point3 *output, float matrix[4][4])
 {
     output->x = input->x * matrix[0][0] + input->y * matrix[1][0] + input->z * matrix[2][0] + matrix[3][0];
@@ -112,11 +79,6 @@ void transform_vector3d(Point3 *input, Point3 *output, float matrix[4][4])
     }
 }
 
-/**
- * Projects a R3 vector into R2 space
- * @param input the 3d point
- * @param output the 2d point
- */
 void project_point3d(Point3 *input, Point *output)
 {
     Point3 translated;
@@ -129,11 +91,6 @@ void project_point3d(Point3 *input, Point *output)
     output->y = (int)((projected.y + 1.0f) * 32.0f);
 }
 
-/**
- * Apply rotation transformation to a 3d point
- * @param input input 3d point
- * @param output rotated 3d point
- */
 void rotate_point3d(Point3 *input, Point3 *output)
 {
     Point3 rotated_x;
@@ -143,10 +100,6 @@ void rotate_point3d(Point3 *input, Point3 *output)
     transform_vector3d(&rotated_y, output, rotationz_matrix);
 }
 
-/**
- * Creates a cube
- * @param cube pointer to a cube struct
- */
 void init_cube(Cube *cube)
 {
     Point3 p0 = {0.0f, 0.0f, 0.0f};
@@ -264,31 +217,18 @@ void init_cube(Cube *cube)
     // cube->triangles3d[11].v2 = &(cube->rotated_points[5]);
 }
 
-/**
- * Rotates a cube
- * @param cube pointer to a cube
- */
 void rotate_cube(Cube *cube)
 {
     for (int i = 0; i < 8; i++)
         rotate_point3d(&(cube->points[i]), &(cube->rotated_points[i]));
 }
 
-/**
- * Applies perspective projection to a cube
- * @param cube point to a cube
- */
 void project_cube(Cube *cube)
 {
     for (int i = 0; i < 8; i++)
         project_point3d(&(cube->rotated_points[i]), &(cube->projected_points[i]));
 }
 
-/**
- * Compute the normal vector for each cube's face, this function should be
- * called after rotate the cube
- * @param cube a cube
- */
 void compute_cube_normals(Cube *cube)
 {
     for (int i = 0; i < 12; i++)

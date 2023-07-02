@@ -3,15 +3,6 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
-/**
- * Configures the USART0
- * @param mode USART mode
- * @param parity parity mode
- * @param stop_bit selects one o two stop bits
- * @param data_bits selects 5, 6, 7, 8 or 9 data bits
- * @param tx_rx enables receiver and transmitter
- * @param baud_rate sets baud rate
- */
 void usart_init(char mode, char parity, char stop_bit, char data_bits, char tx_rx, unsigned long baud_rate)
 {
     UCSR0A = 0;
@@ -81,10 +72,6 @@ void usart_init(char mode, char parity, char stop_bit, char data_bits, char tx_r
     }
 }
 
-/**
- * Receives a byte
- * @return the received byte
- */
 unsigned char usart_receive(void)
 {
     while ((UCSR0A & 0x80) == 0x00)
@@ -92,10 +79,6 @@ unsigned char usart_receive(void)
     return UDR0;
 }
 
-/**
- * Transmits one byte
- * @param data byte to be transmitted
- */
 void usart_transmit(unsigned int data)
 {
     while ((UCSR0A & 0x20) == 0x00)
@@ -103,10 +86,6 @@ void usart_transmit(unsigned int data)
     UDR0 = data;
 }
 
-/**
- * Transmits a string of characters
- * @param s string to be transmitted
- */
 void usart_transmit_string(const char *s)
 {
     int i = 0;

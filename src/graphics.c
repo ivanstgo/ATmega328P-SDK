@@ -33,13 +33,6 @@ const unsigned char font[480] PROGMEM = {
     0x3e, 0x00, 0x64, 0x54, 0x54, 0x4c, 0x00, 0x00, 0x08, 0x36, 0x41, 0x41, 0x00, 0x00, 0x3e, 0x00,
     0x00, 0x41, 0x41, 0x36, 0x08, 0x00, 0x08, 0x04, 0x08, 0x04, 0x00, 0x7f, 0x7d, 0x55, 0x79, 0x7f};
 
-/**
- * Draws a string into graphics buffer
- * @param g graphics buffer
- * @param string texto to draw
- * @param r row (range[0-7])
- * @param c column (range[0-21]);
- */
 void draw_text(Graphics *g, const char *string, unsigned int r, unsigned int c)
 {
     int i = 0;
@@ -53,13 +46,6 @@ void draw_text(Graphics *g, const char *string, unsigned int r, unsigned int c)
     }
 }
 
-/**
- * Draw a bitmap into graphics buffer
- * @param g graphics buffer
- * @param image bitmap to draw
- * @param r row (range[0-7])
- * @param x column (range[0-127]);
- */
 void draw_image(Graphics *g, const unsigned char *image, unsigned int w, unsigned int length, unsigned int r, unsigned int x)
 {
     int j = 0;
@@ -75,36 +61,18 @@ void draw_image(Graphics *g, const unsigned char *image, unsigned int w, unsigne
     }
 }
 
-/**
- * Clean the graphics buffer
- * @param g graphics buffer
- */
 void clear_graphics(Graphics *g)
 {
     for (int i = 0; i < 1024; i++)
         g->buffer[i] = 0x00;
 }
 
-/**
- * Draws a pixel into the display
- * @param g graphics buffer
- * @param x horizontal position
- * @param y vertical position
- */
 void draw_pixel(Graphics *g, unsigned int x, unsigned int y)
 {
     if (x < 128 && y < 64)
         g->buffer[x + ((y >> 3) << 7)] |= 1 << (y - ((y >> 3) << 3));
 }
 
-/**
- * Draws a line using the Bresenham algorithm
- * @param g graphics buffer
- * @param x1 start x
- * @param y1 start y
- * @param x2 end x
- * @param y2 end y
- */
 void draw_line(Graphics *g, unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2)
 {
     int x = x1;
@@ -174,13 +142,6 @@ void draw_line(Graphics *g, unsigned int x1, unsigned int y1, unsigned int x2, u
     }
 }
 
-/**
- * Draw a circle using the midpoint algorithm
- * @param g graphics buffer
- * @param x centre x
- * @param y centre y
- * @param r radius
- */
 void draw_circle(Graphics *g, unsigned int xc, unsigned int yc, unsigned int r)
 {
     int x = r;
@@ -219,16 +180,6 @@ void draw_circle(Graphics *g, unsigned int xc, unsigned int yc, unsigned int r)
     }
 }
 
-/**
- * Draws a triangle
- * @param g graphics buffer
- * @param x1 first point x
- * @param y1 first point y
- * @param x2 second point x
- * @param y2 second point y
- * @param x3 third point x
- * @param y3 third point y
- */
 void draw_triangle(Graphics *g, unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2, unsigned int x3, unsigned int y3)
 {
     draw_line(g, x1, y1, x2, y2);
@@ -244,13 +195,6 @@ void draw_rectangle(Graphics *g, unsigned int x, unsigned int y, unsigned int w,
     draw_line(g, x, y + h, x , y);
 }
 
-/**
- * Draw a polygon
- * @param g graphics buffer
- * @param x an array that contains x components of the points
- * @param y an array that contains y components of the points
- * @param n number of points
- */
 void draw_polygon(Graphics *g, unsigned int *x, unsigned int *y, unsigned int n)
 {
     for (int i = 0; i < (n - 1); i++)
@@ -258,13 +202,6 @@ void draw_polygon(Graphics *g, unsigned int *x, unsigned int *y, unsigned int n)
     draw_line(g, *(x + n - 1), *(y + n - 1), *x, *y);
 }
 
-/**
- * Connects an array of point by lines
- * @param g graphics buffer
- * @param x an array that contains x components of the points
- * @param y an array that contains y components of the points
- * @param n number of points
- */
 void draw_polyline(Graphics *g, unsigned int *x, unsigned int *y, unsigned int n)
 {
     for (int i = 0; i < (n - 1); i++)
