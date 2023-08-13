@@ -9,30 +9,20 @@ void i2c_init(void)
     TWCR = 1 << TWEN;
 }
 
-void i2c_start(void)
-{
-    TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
-    while (!(TWCR & (1 << TWINT)))
-        ;
-}
-
-void i2c_stop(void)
-{
-    TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
-}
-
-void i2c_write(unsigned char data)
-{
-    TWDR = data;
-    TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA);
-    while (!(TWCR & (1 << TWINT)))
-        ;
-}
-
 unsigned char i2c_read(void)
 {
     TWCR = (1 << TWINT) | (1 << TWEN);
     while (!(TWCR & (1 << TWINT)))
         ;
     return TWDR;
+}
+
+void i2c_write_bytes(uint8_t address, uint8_t *data, uint32_t length, uint8_t stop)
+{
+    i2c_start();
+    i2c_write(SLA_W(address));
+    for (uint32_t i = 0; i < length; i++)
+        i2c_write(*(data + i));
+    if (stop)
+        i2c_stop();
 }
