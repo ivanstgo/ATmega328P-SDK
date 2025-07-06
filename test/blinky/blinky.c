@@ -15,7 +15,7 @@ int main(void)
     while(1)
     {
         io_pin_toggle(led_pin.pin); 
-        _delay_ms(250);
+        _delay_ms(500);
     }
     return 0;
 }

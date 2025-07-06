@@ -1,1 +1,7 @@
+add_subdirectory(adc)
+add_subdirectory(hd44780)
+add_subdirectory(i2c)
 add_subdirectory(io_pin)
+add_subdirectory(ssd1306)
+add_subdirectory(timers)
+add_subdirectory(usart)
