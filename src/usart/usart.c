@@ -1,97 +1,59 @@
-#include "usart.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <stdint.h>
 #include <util/delay.h>
+#include "usart.h"
 
-void usart_init(char mode, char parity, char stop_bit, char data_bits, char tx_rx, unsigned long baud_rate)
+static volatile union usart_ctrl_register_a *usart_reg_a = (union usart_ctrl_register_a *)&UCSR0A;
+static volatile union usart_ctrl_register_b *usart_reg_b = (union usart_ctrl_register_b *)&UCSR0B;
+static volatile union usart_ctrl_register_c *usart_reg_c = (union usart_ctrl_register_c *)&UCSR0C;
+
+void usart_configure(struct usart_config config, uint32_t baudrate)
 {
-    UCSR0A = 0;
-    UCSR0B = 0;
-    UCSR0C = 0;
-    switch (mode)
+    usart_reg_a->reg = config.a.reg;
+    usart_reg_b->reg = config.b.reg;
+    usart_reg_c->reg = config.c.reg;
+
+    uint32_t br = 0;
+
+    if (config.c.flags.mode_select == USART_ASYNCHRONOUS)
     {
-    case SYNCHRONOUS_MODE:
-        UBRR0 = (unsigned int)((float)F_CPU / (baud_rate * 2.0f) - 1.0f);
-        UCSR0C |= 1 << UMSEL00;
-        break;
-    case ASYNCHRONOUS_DOUBLE_SPEED_MODE:
-        UCSR0A |= 1 << U2X0;
-        UBRR0 = (unsigned int)((float)F_CPU / (baud_rate * 8.0f) - 1.0f);
-        break;
-    default:
-        UBRR0 = (unsigned int)((float)F_CPU / (baud_rate * 16.0f) - 1.0f);
-        break;
+        if (config.a.flags.async_double_speed_mode)
+        {
+            br = (F_CPU / (baudrate << 3u)) - 1;
+        }
+        else
+        {
+            br = (F_CPU / (baudrate << 4u)) - 1;
+        }
     }
-    switch (parity)
+    else
     {
-    case EVEN_PARITY:
-        UCSR0C |= 1 << UPM01;
-        break;
-    case ODD_PARITY:
-        UCSR0C |= (1 << UPM01) | (1 << UPM00);
-        break;
-    default:
-        break;
+        br = (F_CPU / (baudrate << 1u)) - 1; 
     }
-    switch (stop_bit)
-    {
-    case TWO_STOP_BIT:
-        UCSR0C |= 1 << USBS0;
-        break;
-    default:
-        break;
-    }
-    switch (data_bits)
-    {
-    case DATA_BITS_6:
-        UCSR0C |= 1 << UCSZ00;
-        break;
-    case DATA_BITS_7:
-        UCSR0C |= 1 << UCSZ01;
-        break;
-    case DATA_BITS_8:
-        UCSR0C |= (1 << UCSZ01) | (1 << UCSZ00);
-        break;
-    case DATA_BITS_9:
-        UCSR0C |= (1 << UCSZ02) | (1 << UCSZ01) | (1 << UCSZ00);
-        break;
-    default:
-        break;
-    }
-    switch (tx_rx)
-    {
-    case RECEIVER_ENABLE:
-        UCSR0B |= 1 << RXEN0;
-        break;
-    case TRANSMITTER_ENABLE:
-        UCSR0B |= 1 << TXEN0;
-        break;
-    default:
-        UCSR0B |= (1 << RXEN0) | (1 << TXEN0);
-        break;
-    }
+    UBRR0 = (uint16_t)br;
 }
 
-unsigned char usart_receive(void)
+void usart_transmit(uint8_t data)
 {
-    while ((UCSR0A & 0x80) == 0x00)
-        ;
-    return UDR0;
-}
-
-void usart_transmit(unsigned int data)
-{
-    while ((UCSR0A & 0x20) == 0x00)
-        ;
+    // Wait until data register empty flag is set
+    while (!usart_reg_a->flags.data_register_empty);
     UDR0 = data;
 }
 
-void usart_transmit_string(const char *s)
+uint8_t usart_receive(void)
 {
-    int i = 0;
-    while (*(s + i))
+    // Wait until receive complete flag is set
+    while (!usart_reg_a->flags.receive_complete);
+    return UDR0;
+}
+
+void usart_transmit_string(char *str)
+{
+    uint16_t i = 0;
+    while (*(str + i))
     {
-        usart_transmit((unsigned int)*(s + i));
+        usart_transmit(*(str + i));
         i++;
     }
 }

@@ -4,53 +4,147 @@
  * @date 07-01-2023 18:09
  * @brief Library for using ATmega328P USART0
 */
-#ifndef _USART_H_
-#define _USART_H_
-#define NO_PARITY 'N'
-#define EVEN_PARITY 'E'
-#define ODD_PARITY 'O'
-#define ASYNCHRONOUS_MODE 'A'
-#define ASYNCHRONOUS_DOUBLE_SPEED_MODE 'D'
-#define SYNCHRONOUS_MODE 'S'
-#define MASTER_SPI_MODE 'M'
-#define ONE_STOP_BIT '1'
-#define TWO_STOP_BIT '2'
-#define DATA_BITS_5 '5'
-#define DATA_BITS_6 '6'
-#define DATA_BITS_7 '7'
-#define DATA_BITS_8 '8'
-#define DATA_BITS_9 '9'
-#define RECEIVER_ENABLE 'R'
-#define TRANSMITTER_ENABLE 'T'
-#define TRANSCEIVER_ENABLE 'B'
+#ifndef USART_H_
+#define USART_H_
+
+#include <stdint.h>
 
 /**
- * Stores the received byte
-*/
-volatile unsigned char usart_received_char;
-/**
- * Configures the USART0
- * @param mode USART mode
- * @param parity parity mode
- * @param stop_bit selects one o two stop bits
- * @param data_bits selects 5, 6, 7, 8 or 9 data bits
- * @param tx_rx enables receiver and transmitter
- * @param baud_rate sets baud rate
+ * @brief USART synchronous clock polarity
  */
-void usart_init(char mode, char parity, char stop_bit, char data_bits, char tx_rx, unsigned long baud_rate);
+enum usart_sync_clk_polarity
+{
+    USART_TX_RISING_RX_FALLING,
+    USART_TX_FALLING_RX_RISING
+};
+
 /**
- * Transmits one byte
- * @param data byte to be transmitted
+ * @brief USART character size
  */
-void usart_transmit(unsigned int data);
+enum usart_character_size
+{
+    USART_CHAR_SIZE_5BIT,
+    USART_CHAR_SIZE_6BIT,
+    USART_CHAR_SIZE_7BIT,
+    USART_CHAR_SIZE_8BIT
+};
+
 /**
- * Transmits a string of characters
- * @param s string to be transmitted
+ * @brief USART asynchronous transmitter stop bit number
  */
-void usart_transmit_string(const char *s);
+enum usart_stop_bit_select
+{
+    USART_STOP_1BIT,
+    USART_STOP_2BIT
+};
+
 /**
- * Receives a byte
- * @return the received byte
+ * @brief USART parity modes
  */
-unsigned char usart_receive(void);
-#endif
+enum usart_parity_mode
+{
+    USART_PARITY_DISABLED,
+    USART_EVEN_PARITY = 2,
+    USART_ODD_PARITY
+};
+
+/**
+ * @brief USART modes
+ */
+enum usart_mode_select
+{
+    USART_ASYNCHRONOUS,
+    USART_SYNCHRONOUS,
+    USART_MASTER_SPI = 3
+};
+
+/**
+ * @brief USART0 control and status register A
+ */
+union usart_ctrl_register_a
+{
+    uint8_t reg;
+    struct
+    {
+        uint8_t mpc_mode : 1;
+        uint8_t async_double_speed_mode : 1;
+        uint8_t parity_error : 1;
+        uint8_t data_overrun : 1;
+        uint8_t frame_error : 1;
+        uint8_t data_register_empty : 1;
+        uint8_t transmit_complete : 1;
+        uint8_t receive_complete : 1;
+    } flags;
+};
+
+/**
+ * @brief USART0 control and status register B
+ */
+union usart_ctrl_register_b
+{
+    uint8_t reg;
+    struct
+    {
+        uint8_t transmit_data_bit8 : 1;
+        uint8_t receive_data_bit8 : 1;
+        uint8_t char_size_n2 : 1;
+        uint8_t transmitter_enable : 1;
+        uint8_t receiver_enable : 1;
+        uint8_t data_register_empty_interrupt_enable : 1;
+        uint8_t tx_complete_interrupt_enable : 1;
+        uint8_t rx_complete_interrupt_enable : 1;
+    } flags;
+};
+
+/**
+ * @brief USART0 control and status register C
+ */
+union usart_ctrl_register_c
+{
+    uint8_t reg;
+    struct
+    {
+        uint8_t sync_clock_polarity : 1;
+        uint8_t character_size : 2;
+        uint8_t stop_bit_select : 1;
+        uint8_t parity_mode : 2;
+        uint8_t mode_select : 2;
+    } flags;
+};
+
+/**
+ * @brief USART0 configuration struct
+ */
+struct usart_config
+{
+    union usart_ctrl_register_a a;
+    union usart_ctrl_register_b b;
+    union usart_ctrl_register_c c;
+};
+
+/**
+ * @brief Configures the USART0 using a usart_config struct
+ * @param config USART configuration
+ * @param baudrate target baudrate in Hz (e.g. 9600u)
+ */
+void usart_configure(struct usart_config config, uint32_t baudrate);
+
+/**
+ * @brief Transmits one character
+ * @param data character to be transmitted
+ */
+void usart_transmit(uint8_t data);
+
+/**
+ * Receives one character
+ * @return received data
+ */
+uint8_t usart_receive(void);
+
+/**
+ * @brief Transmits a zero terminated string
+ * @param str string
+ */
+void usart_transmit_string(char *str);
+
+#endif /* !USART_H_ */
