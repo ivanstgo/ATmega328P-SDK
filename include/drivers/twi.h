@@ -32,25 +32,6 @@ extern "C" {
 #define TWI_WAIT_INTERRUPT_FLAG while (!(TWCR & (1 << TWINT)))
 
 /**
- * @brief ATmega328P 2-wire serial interface registers.
- */
-struct twi_memory
-{
-    /** @brief Bit rate register*/
-    uint8_t twbr;
-    /** @brief Status register*/
-    uint8_t twsr;
-    /** @brief Slave address register */
-    uint8_t twar;
-    /** @brief Data register.*/
-    uint8_t twdr;
-    /** @brief Control register. */
-    uint8_t twcr;
-    /** @brief Slave address mask register. */
-    uint8_t twamr;
-};
-
-/**
  * @brief TWI bit rate prescaler values.
  */
 enum twi_bit_rate_prescaler
