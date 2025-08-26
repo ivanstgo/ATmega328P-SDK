@@ -1,6 +1,6 @@
 # ATmega328P-SDK
 
-This repository contains a set of drivers written in C language to use the different ATmega328P-SDK
+This repository contains a set of drivers written in C language to use the different ATmega328P
 peripherals.
 
 ## Project structure
@@ -8,19 +8,19 @@ peripherals.
 | Directory | Description |
 | --------- | ----------- |
 | `src`     | Contains the source code |
-| `test`    | Contains programs to test the different features |
+| `include` | Contains the header files |
 | `tools/cmake` | Contains cmake scripts to use the AVR toolchain |
 
 ## Features
 
 Implemented drivers:
 
-- [x] I/O ports (`io_pin.h`)
-- [x] Timers
-- [x] ADC
-- [x] USART
+- [x] I/O ports
+- [ ] Timers
+- [ ] ADC
+- [ ] USART
 - [ ] SPI
-- [x] 2-Wire interface (I2C)
+- [ ] 2-Wire interface (I2C)
 - [ ] Watchdog timer
 - [ ] Analog comparator
 - [ ] Interrupts
