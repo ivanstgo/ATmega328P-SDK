@@ -1,5 +1,5 @@
 /**
- * @file twi.c
+ * @file twi.h
  * @author Iván Santiago (gh: ivanstgo)
  * @date 25/08/2025 - 20:04
  * @brief ATmega328P 2-wire serial interface driver.
