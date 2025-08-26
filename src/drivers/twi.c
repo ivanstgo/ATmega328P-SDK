@@ -20,7 +20,8 @@ void twi_configure(uint32_t bit_rate)
     TWBR = (uint8_t) twbr;
 }
 
-uint16_t twi_write(uint8_t sla, uint8_t *src, uint16_t length)
+uint16_t twi_write(uint8_t sla, uint8_t *src, uint16_t length,
+                   enum twi_stop_control stop)
 {
     uint16_t i = 0;
     twi_start();
@@ -33,11 +34,24 @@ uint16_t twi_write(uint8_t sla, uint8_t *src, uint16_t length)
     {
         if (twi_transmit(src[i]) != TW_MR_DATA_ACK) break;
     }
-    twi_stop();
+    if (stop == TWI_END_WITH_STOP) twi_stop();
     return i;
 }
 
-uint16_t twi_read(uint8_t sla, uint8_t *dst, uint16_t length)
+uint16_t twi_read(uint8_t sla, uint8_t *dst, uint16_t length,
+                  enum twi_stop_control stop)
 {
-    // TODO: Implement master read function.
+    uint16_t i = 0;
+    twi_start();
+    if (twi_transmit(TWI_SLA_READ(sla)) != TW_MR_SLA_ACK)
+    {
+        twi_stop();
+        return i;
+    }
+    for (i = 0; i < length; i++)
+    {
+        dst[i] = twi_receive();
+    }
+    if (stop == TWI_END_WITH_STOP) twi_stop();
+    return i;
 }

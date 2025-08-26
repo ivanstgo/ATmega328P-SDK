@@ -68,8 +68,18 @@ enum twi_control
 {
     TWI_SEND_START_CONDITION = (1u << TWINT) | (1u << TWSTA) | (1u << TWEN),
     TWI_SEND_STOP_CONDITION = (1u << TWINT) | (1u << TWSTO) | (1u << TWEN),
-    TWI_SEND_BYTE = (1u << TWINT) | (1u << TWEN),
+    TWI_SET_ENABLED = (1u << TWINT) | (1u << TWEN),
     TWI_OPERATE_AS_SLAVE = (1 << TWEA) | (1 << TWEN)
+};
+
+/**
+ * @brief Values for the stop parameter in read/write functions. It indicates
+ * if a read/write operation is ended with a STOP condition.
+ */
+enum twi_stop_control
+{
+    TWI_END_WITHOUT_STOP,
+    TWI_END_WITH_STOP
 };
 
 /**
@@ -101,9 +111,20 @@ static inline uint8_t twi_stop(void)
 static inline uint8_t twi_transmit(uint8_t data)
 {
     TWDR = data;
-    TWCR = TWI_SEND_BYTE;
+    TWCR = TWI_SET_ENABLED;
     TWI_WAIT_INTERRUPT_FLAG;
     return TW_STATUS;
+}
+
+/**
+ * @brief Receives one byte.
+ * @return Received byte.
+ */
+static inline uint8_t twi_receive(void)
+{
+    TWCR = TWI_SET_ENABLED;
+    TWI_WAIT_INTERRUPT_FLAG;
+    return TWDR;
 }
 
 /**
@@ -113,40 +134,28 @@ static inline uint8_t twi_transmit(uint8_t data)
 void twi_configure(uint32_t bit_rate);
 
 /**
- * @brief Writes a sequence of data in master mode. After writing the last byte
- * it generates a stop condition.
+ * @brief Writes a sequence of data in master mode.
  * @param sla Slave address.
- * @param src Pointer to the Data source.
+ * @param src Pointer to data source.
  * @param length Number of bytes to write.
+ * @param stop Indicates if a stop condition must be generated after
+ * transmitting the last byte.
+ * @return Number of successfully written bytes.
  */
-uint16_t twi_write(uint8_t sla, uint8_t *src, uint16_t length);
+uint16_t twi_write(uint8_t sla, uint8_t *src, uint16_t length,
+                   enum twi_stop_control stop);
 
 /**
- * @brief Writes a sequence of data in master mode. After writing the last byte
- * it does not generate a stop condition.
+ * @brief Reads a sequence of bytes in master mode.
  * @param sla Slave address.
- * @param src Pointer to the data source.
- * @param length Number of bytes to write.
- */
-uint16_t twi_write_no_stop(uint8_t sla, uint8_t *src, uint16_t length);
-
-/**
- * @brief Reads a sequence of bytes in master mode. After reading the last byte
- * it generates a stop condition.
- * @param sla Slave address.
- * @param dst Pointer to the data destination.
+ * @param dst Pointer to data destination.
  * @param length Number of bytes to read.
+ * @param stop Indicates if a stop condition must be generated after receiving
+ * the last byte.
+ * @return Number of successfully read bytes.
  */
-uint16_t twi_read(uint8_t sla, uint8_t *dst, uint16_t length);
-
-/**
- * @brief Reads a sequence of bytes in master mode. After reading the last byte
- * it does not generate a stop condition.
- * @param sla Slave address.
- * @param dst Pointer to the data destination.
- * @param length Number of bytes to read.
- */
-uint16_t twi_read_no_stop(uint8_t sla, uint8_t  *dst, uint16_t length);
+uint16_t twi_read(uint8_t sla, uint8_t *dst, uint16_t length,
+                  enum twi_stop_control stop);
 
 #ifdef __cplusplus
 }
