@@ -1,7 +1,6 @@
 # ATmega328P-SDK
 
-This repository contains a set of drivers written in C language to use the different ATmega328P
-peripherals.
+Collection of drivers written in C language to use the ATmega328P peripherals.
 
 ## Project structure
 
@@ -18,9 +17,9 @@ Implemented drivers:
 - [x] I/O ports
 - [ ] Timers
 - [ ] ADC
-- [ ] USART
+- [X] USART
 - [ ] SPI
-- [ ] 2-Wire interface (I2C)
+- [X] 2-Wire interface (I2C)
 - [ ] Watchdog timer
 - [ ] Analog comparator
 - [ ] Interrupts
@@ -34,7 +33,27 @@ This project uses the `GNU AVR toolchain`
 - `avr-binutils`
 - `avr-libc`
 
-## Building the project
+## Usage
+
+Export the sdk path to an environment variable
+
+```shell
+export MEGA328P_SDK_PATH=<sdk path>
+```
+
+Add the sdk directory to the main CMake file of your project
+
+```cmake
+cmake_minimum_required(VERSION 3.30)
+project(<project_name> C)
+
+# Include SDK path
+add_subdirectory($ENV{MEGA328P_SDK_PATH} sdk)
+
+# Project content
+```
+
+### Building the project
 
 Create a directory named `build` and navigate to it
 
@@ -46,6 +65,5 @@ cd build
 Execute `cmake` specifying the cmake toolchain file
 
 ```shell
-cmake -S .. -B . -DCMAKE_TOOLCHAIN_FILE=../tools/cmake/avr-toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+cmake -S .. -B . -DCMAKE_TOOLCHAIN_FILE=$MEGA328P_SDK_PATH/tools/cmake/avr-toolchain.cmake -DCMAKE_BUILD_TYPE=Release
 ```
-
