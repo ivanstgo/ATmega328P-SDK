@@ -7,7 +7,6 @@
 
 #include <avr/io.h>
 #include "drivers/io_pin.h"
-#include "common/bit_operations.h"
 
 /**
  * @brief I/O port registers.
@@ -38,26 +37,26 @@ void pin_configure(struct pin_config config)
     uint8_t pin = (config.pin >> PIN_OFFSET) & 0b111;
     if (config.dir == OUTPUT)
     {
-        io_ports[port]->DDRx |= SET_BIT(pin);
+        io_ports[port]->DDRx |= _BV(pin);
         if (config.value == HIGH)
         {
-            io_ports[port]->PORTx |= SET_BIT(pin);
+            io_ports[port]->PORTx |= _BV(pin);
         }
         else
         {
-            io_ports[port]->PORTx &= CLEAR_BIT(pin);
+            io_ports[port]->PORTx &= ~_BV(pin);
         }
     }
     else
     {
-        io_ports[port]->DDRx &= CLEAR_BIT(pin);
+        io_ports[port]->DDRx &= ~_BV(pin);
         if (config.pull_up == PULL_UP_ENABLED)
         {
-            io_ports[port]->PORTx |= SET_BIT(pin);
+            io_ports[port]->PORTx |= _BV(pin);
         }
         else
         {
-            io_ports[port]->PORTx &= CLEAR_BIT(pin);
+            io_ports[port]->PORTx &= ~_BV(pin);
         }
     }
 }
@@ -76,11 +75,11 @@ void pin_write(enum io_pin pin, enum io_value value)
     uint8_t p = (pin >> PIN_OFFSET) & 0b111;
     if (value == HIGH)
     {
-        io_ports[port]->PORTx |= SET_BIT(p);
+        io_ports[port]->PORTx |= _BV(p);
     }
     else
     {
-        io_ports[port]->PORTx &= CLEAR_BIT(p);
+        io_ports[port]->PORTx &= ~_BV(p);
     }
 }
 
@@ -96,13 +95,13 @@ void pin_enable_change_interrupt(enum io_pin pin)
 {
     uint8_t port = pin >> PORT_OFFSET;
     uint8_t p = (pin >> PIN_OFFSET) & 0b111;
-    PCICR |= SET_BIT(p);
-    *pin_change_mask_registers[port] |= SET_BIT(p);
+    PCICR |= _BV(p);
+    *pin_change_mask_registers[port] |= _BV(p);
 }
 
 void pin_disable_change_interrupt(enum io_pin pin)
 {
     uint8_t port = pin >> PORT_OFFSET;
     uint8_t p = (pin >> PIN_OFFSET) & 0b111;
-    *pin_change_mask_registers[port] &= CLEAR_BIT(p);
+    *pin_change_mask_registers[port] &= ~_BV(p);
 }

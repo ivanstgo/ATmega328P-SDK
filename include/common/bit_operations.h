@@ -10,7 +10,7 @@
 #define __BIT_OPERATIONS_H
 
 /**
- * @brief Turns one single bit off.
+ * @brief Turns one single bit on.
  */
 #define SET_BIT(B) (1u << (B))
 
