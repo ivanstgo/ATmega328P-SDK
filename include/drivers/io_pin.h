@@ -239,6 +239,27 @@ enum io_pin
 };
 
 /**
+ * @brief Lists external interrupts
+ */
+enum ext_int
+{
+    EXTERNAL_INT0,
+    EXTERNAL_INT1
+};
+
+/**
+ * @brief Lists external interrupt level and edges that trigger the external
+ * interrupts.
+ */
+enum ext_int_trigger
+{
+    INT_LOW_LEVEL,
+    INT_HIGH_LEVEL,
+    INT_FALLING_EDGE,
+    INT_RISING_EDGE
+};
+
+/**
  * @brief I/O pin configuration struct.
  */
 struct pin_config
@@ -286,6 +307,16 @@ void pin_enable_change_interrupt(enum io_pin pin);
  * @param pin Input pin.
  */
 void pin_disable_change_interrupt(enum io_pin pin);
+
+/**
+ * @brief Configures an external interrupt.
+ * @param interrupt External interrupt pin.
+ * @param trigger Level or edge that triggers the interrupt.
+ * @note In order to trigger the interrupt global interrupts must be enabled and
+ * PIN_INT0/PIN_INT1 must be properly configured.
+ */
+void pin_enable_external_interrupt(enum ext_int interrupt,
+                                   enum ext_int_trigger trigger);
 
 #ifdef __cplusplus
 }

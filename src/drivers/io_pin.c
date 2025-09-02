@@ -105,3 +105,10 @@ void pin_disable_change_interrupt(enum io_pin pin)
     uint8_t p = (pin >> PIN_OFFSET) & 0b111;
     *pin_change_mask_registers[port] &= ~_BV(p);
 }
+
+void pin_enable_external_interrupt(enum ext_int interrupt,
+                                   enum ext_int_trigger trigger)
+{
+    EIMSK |= _BV(interrupt);
+    EICRA |= trigger << (interrupt << 2u);
+}
