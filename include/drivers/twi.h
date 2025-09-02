@@ -1,6 +1,6 @@
 /**
  * @file twi.h
- * @author Iván Santiago (gh: ivanstgo)
+ * @author Iván Santiago (https://github.com/ivanstgo)
  * @date 25/08/2025 - 20:04
  * @brief ATmega328P 2-wire serial interface driver.
  */
@@ -8,138 +8,101 @@
 #ifndef __TWI_H
 #define __TWI_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <stdint.h>
 #include <avr/io.h>
 #include <util/twi.h>
 
 /**
- * @brief Macro to format a TWI slave address to write.
+ * @brief Macro to format a slave address for reading.
  */
 #define TWI_SLA_WRITE(SLA) (((SLA) << 1u) | TW_WRITE)
 
 /**
- * @brief Macro to format a TWI slave address to read.
+ * @brief Macro to format a slave address for writing.
  */
 #define TWI_SLA_READ(SLA) (((SLA) << 1u) | TW_READ)
 
 /**
- * @brief Macro to wait until the TWI interrutp flag is set.
+ * @brief Prescaler value.
  */
-#define TWI_WAIT_INTERRUPT_FLAG while (!(TWCR & (1 << TWINT)))
-
-/**
- * @brief TWI bit rate prescaler values.
- */
-enum twi_bit_rate_prescaler
+enum twi_prescaler
 {
-    TWI_PRESCALER_1,
-    TWI_PRESCALER_4 = 1 << TWPS0,
-    TWI_PRESCALER_16 = 1 << TWPS1,
-    TWI_PRESCALER_64 = (1 << TWPS0) | (1 << TWPS1)
+    TWI_PRESCALER_VALUE_1,
+    TWI_PRESCALER_VALUE_4 = _BV(TWPS0),
+    TWI_PRESCALER_VALUE_16 = _BV(TWPS1),
+    TWI_PRESCALER_VALUE_64 = _BV(TWPS0) | _BV(TWPS1)
 };
 
 /**
- * @brief Control register values.
+ * @brief This enumeration lists values to write into the TWI control register.
  */
-enum twi_control
+enum twi_control_byte
 {
-    TWI_SEND_START_CONDITION = (1u << TWINT) | (1u << TWSTA) | (1u << TWEN),
-    TWI_SEND_STOP_CONDITION = (1u << TWINT) | (1u << TWSTO) | (1u << TWEN),
-    TWI_SET_ENABLED = (1u << TWINT) | (1u << TWEN),
-    TWI_OPERATE_AS_SLAVE = (1 << TWEA) | (1 << TWEN)
+    TWI_SEND_START_CONDITION = _BV(TWEN) | _BV(TWSTA) | _BV(TWINT),
+    TWI_SEND_STOP_CONDITION = _BV(TWEN) | _BV(TWSTO) | _BV(TWINT),
+    TWI_TRANSMIT_BYTE = _BV(TWEN) | _BV(TWEA) | _BV(TWINT),
+    TWI_RECEIVE_BYTE = TWI_TRANSMIT_BYTE,
 };
 
 /**
- * @brief Values for the stop parameter in read/write functions. It indicates
- * if a read/write operation is ended with a STOP condition.
+ * @brief Generates a start condition.
  */
-enum twi_stop_control
-{
-    TWI_END_WITHOUT_STOP,
-    TWI_END_WITH_STOP
-};
-
-/**
- * @brief Transmits a start condition.
- * @return TWI status code.
- */
-static inline uint8_t twi_start(void)
+static inline void twi_start(void)
 {
     TWCR = TWI_SEND_START_CONDITION;
-    TWI_WAIT_INTERRUPT_FLAG;
-    return TW_STATUS; 
+    loop_until_bit_is_set(TWCR, TWINT);
 }
 
 /**
- * @brief Transmits a stop condition.
- * @return TWI status code.
+ * @brief Generates a stop condition.
  */
-static inline uint8_t twi_stop(void)
+static inline void twi_stop(void)
 {
     TWCR = TWI_SEND_STOP_CONDITION;
-    TWI_WAIT_INTERRUPT_FLAG;
-    return TW_STATUS;
 }
 
 /**
- * @brief Transmits one byte.
- * @return TWI status code.
+ * @brief Transmits a byte.
+ * @param data Byte to bre transmitted.
  */
-static inline uint8_t twi_transmit(uint8_t data)
+static inline void twi_transmit(uint8_t data)
 {
     TWDR = data;
-    TWCR = TWI_SET_ENABLED;
-    TWI_WAIT_INTERRUPT_FLAG;
-    return TW_STATUS;
+    TWCR = TWI_TRANSMIT_BYTE;
+    loop_until_bit_is_set(TWCR, TWINT);
 }
 
 /**
- * @brief Receives one byte.
+ * @brief Receives a byte.
  * @return Received byte.
  */
 static inline uint8_t twi_receive(void)
 {
-    TWCR = TWI_SET_ENABLED;
-    TWI_WAIT_INTERRUPT_FLAG;
+    TWCR = TWI_RECEIVE_BYTE;
+    loop_until_bit_is_set(TWCR, TWINT);
     return TWDR;
 }
 
 /**
- * @brief Configures the two wire serial interface.
- * @param bit_rate Target bit rate in Hz. (e.g. 400000)
+ * @brief Configures the 2-wire serial interface.
+ * @param bit_rate Bit rate in Hz e.g. 100000.
  */
 void twi_configure(uint32_t bit_rate);
 
 /**
- * @brief Writes a sequence of data in master mode.
+ * @brief Writes data to a slave.
  * @param sla Slave address.
- * @param src Pointer to data source.
- * @param length Number of bytes to write.
- * @param stop Indicates if a stop condition must be generated after
- * transmitting the last byte.
- * @return Number of successfully written bytes.
+ * @param src Data source.
+ * @param length Number of bytes to transmit.
  */
-uint16_t twi_write(uint8_t sla, uint8_t *src, uint16_t length,
-                   enum twi_stop_control stop);
+uint16_t twi_write(uint8_t sla, uint8_t *src, uint16_t length);
 
 /**
- * @brief Reads a sequence of bytes in master mode.
+ * @brief Reads data from a slave.
  * @param sla Slave address.
- * @param dst Pointer to data destination.
- * @param length Number of bytes to read.
- * @param stop Indicates if a stop condition must be generated after receiving
- * the last byte.
- * @return Number of successfully read bytes.
+ * @param dst Data destination.
+ * @param length Number of bytes to receive.
  */
-uint16_t twi_read(uint8_t sla, uint8_t *dst, uint16_t length,
-                  enum twi_stop_control stop);
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
+uint16_t twi_read(uint8_t sla, uint8_t *dst, uint16_t length);
 
 #endif /* !__TWI_H */
