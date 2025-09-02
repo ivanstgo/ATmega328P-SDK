@@ -1,11 +1,11 @@
 # @file avr-toolchain.cmake
-# @author Iván Santiago (gh: ivanstgo)
+# @author Iván Santiago (https://github.com/ivanstgo)
 # @date 04/07/2025 - 19:10
 # @brief This file describes an AVR target platform and sets the avr-gnu-toolchain for cross-compiling
 
 cmake_minimum_required(VERSION 3.30)
 
-# The target is not running any operating system (bare-metal)
+# The target processor is not running any operating system (bare-metal)
 set(CMAKE_SYSTEM_NAME Generic)
 
 # Set C compiler

@@ -1,5 +1,7 @@
-# @file avr-binutils.cmake @author Iván Santiago (gh: ivanstgo) @date 04/07/2025
-# - 19:29 @brief This file contains functions to get additional output files
+# @file avr-binutils.cmake
+# @author Iván Santiago (gh: ivanstgo)
+# @date 04/07/2025 - 19:29
+# @brief This file contains functions to get additional output files
 
 cmake_minimum_required(VERSION 3.30)
 
@@ -21,6 +23,12 @@ function(generate_dis TARGET)
     POST_BUILD
     COMMAND ${CMAKE_OBJDUMP} -h -S ${TARGET} > ${TARGET}.dis
     VERBATIM)
+endfunction()
+
+# @brief Generates a map file
+# @brief TARGET target
+function(generate_map TARGET)
+    target_link_options(${TARGET} PUBLIC LINKER:-Map=${TARGET}.map)
 endfunction()
 
 # @brief Gets a list of symbols from a .elf file
